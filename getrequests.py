@@ -23,6 +23,7 @@ customer_transactions = []
 
 #looks at first customer in the list
 cur_id = customer_ids[0]
+#cur_id = 'd7b518ac-b11d-4e18-9ace-6c24342a7c6b' - tommy cherny
 
 # accounts = requests.get('https://api.td-davinci.com/api/customers/{}/accounts'.format(cur_id),
 #     headers = { 'Authorization': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDQlAiLCJ0ZWFtX2lkIjoiMDAxZTI4YzAtYmVhMi0zODUwLTgxMTQtYWVkMmQ5YTU2YTlmIiwiZXhwIjo5MjIzMzcyMDM2ODU0Nzc1LCJhcHBfaWQiOiIxNDZiZDRmOS1lOWNiLTQ2M2EtOGNiZC01ZDg2MGYzZWZiNjAifQ.d7r4SbvmbRoSw43ejFqiO9K0xpBK2jpp4XPfjvAla58'})
@@ -33,25 +34,25 @@ trans = requests.get('https://api.td-davinci.com/api/customers/{}/transactions'.
     headers = { 'Authorization': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDQlAiLCJ0ZWFtX2lkIjoiMDAxZTI4YzAtYmVhMi0zODUwLTgxMTQtYWVkMmQ5YTU2YTlmIiwiZXhwIjo5MjIzMzcyMDM2ODU0Nzc1LCJhcHBfaWQiOiIxNDZiZDRmOS1lOWNiLTQ2M2EtOGNiZC01ZDg2MGYzZWZiNjAifQ.d7r4SbvmbRoSw43ejFqiO9K0xpBK2jpp4XPfjvAla58'})
 trans_data = trans.json()
 
-#print(trans_data)
-# print(acc_data)
-
 transactions = trans_data['result']
 
 #list to hold clean transactions
 trans_clean = []
+categoryTagsList = []
 
 keys_list = ['description', 'type', 'currencyAmount', 'originationDateTime', 'customerId', 'id', 'accountId', 'categoryTags']
 for trans in transactions:
 	temp_info = {}
 	for key in keys_list:
 		temp_info[key] = trans[key]
-	
 	trans_clean.append(temp_info)
 
-f = open('transaction.txt', 'w+')
-for i in trans_clean:
-	f.write(json.dumps(i))
+with open("transaction.json", "w+") as f:
+	f.truncate(0)
+	f.write(json.dumps(trans_clean, sort_keys=True, indent=4))
+
+#for i in trans_clean:
+#	f.write(json.dumps(i))
 
 # print(temp_info)
 f.close()
