@@ -24,9 +24,22 @@ customer_transactions = []
 #looks at first customer in the list
 cur_id = customer_ids[0]
 
-# accounts = requests.get('https://api.td-davinci.com/api/customers/{}/accounts'.format(cur_id),
-#     headers = { 'Authorization': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDQlAiLCJ0ZWFtX2lkIjoiMDAxZTI4YzAtYmVhMi0zODUwLTgxMTQtYWVkMmQ5YTU2YTlmIiwiZXhwIjo5MjIzMzcyMDM2ODU0Nzc1LCJhcHBfaWQiOiIxNDZiZDRmOS1lOWNiLTQ2M2EtOGNiZC01ZDg2MGYzZWZiNjAifQ.d7r4SbvmbRoSw43ejFqiO9K0xpBK2jpp4XPfjvAla58'})
-# acc_data = accounts.json()
+accounts = requests.get('https://api.td-davinci.com/api/customers/{}/accounts'.format(cur_id),
+    headers = { 'Authorization': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDQlAiLCJ0ZWFtX2lkIjoiMDAxZTI4YzAtYmVhMi0zODUwLTgxMTQtYWVkMmQ5YTU2YTlmIiwiZXhwIjo5MjIzMzcyMDM2ODU0Nzc1LCJhcHBfaWQiOiIxNDZiZDRmOS1lOWNiLTQ2M2EtOGNiZC01ZDg2MGYzZWZiNjAifQ.d7r4SbvmbRoSw43ejFqiO9K0xpBK2jpp4XPfjvAla58'})
+acc_data = accounts.json()
+
+#print(acc_data.keys())
+account = acc_data['result']
+# print(acc_data['result'])
+
+# get balance (will have to change to accomodate for savings, chequing, and credit card)
+card_balances = {}
+for card in account['bankAccounts']:
+	card_balances[card['id']] = card['balance']
+
+for card in account['creditCardAccounts']:
+	card_balances[card['id']] = card['balance']
+
 
 # Get transaction data
 trans = requests.get('https://api.td-davinci.com/api/customers/{}/transactions'.format(cur_id),
@@ -43,18 +56,28 @@ trans_clean = []
 
 keys_list = ['description', 'type', 'currencyAmount', 'originationDateTime', 'customerId', 'id', 'accountId', 'categoryTags']
 for trans in transactions:
-	temp_info = {}
+	curr_trans = {}
 	for key in keys_list:
-		temp_info[key] = trans[key]
-	
-	trans_clean.append(temp_info)
+		curr_trans[key] = trans[key]
 
-f = open('transaction.txt', 'w+')
+	# if trans['type'] == 'DepositAccountTransaction':
+	curr_trans['balance'] = card_balances[card['id']] + trans['currencyAmount']
+	# else: # credit card
+	# 	curr_trans['balance'] = card_balances[card['id']] - trans[]
+	trans_clean.append(curr_trans)
+
+
+f = open('transactionbalance.txt', 'w+')
 for i in trans_clean:
 	f.write(json.dumps(i))
 
 # print(temp_info)
 f.close()
+# numTransactions = 1
+# numCategoryTags = 1
+# a = np.zeros(shape = (numTransactions, numCategoryTags))
+# # a = np.array(trans_clean)
+# print(a)
 
 
 
