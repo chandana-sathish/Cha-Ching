@@ -1,7 +1,19 @@
-# install the requests package using 'pip3 install requests'
-import requests
-import json
+import warnings
+import itertools
 import numpy as np
+import matplotlib.pyplot as plt
+warnings.filterwarnings("ignore")
+#plt.style.use('fivethirtyeight')
+import pandas as pd
+import statsmodels.api as sm
+import matplotlib
+import json
+import requests
+import numpy as np
+matplotlib.rcParams['axes.labelsize'] = 14
+matplotlib.rcParams['xtick.labelsize'] = 12
+matplotlib.rcParams['ytick.labelsize'] = 12
+matplotlib.rcParams['text.color'] = 'k'
 
 response = requests.post('https://api.td-davinci.com/api/raw-customer-data',
     headers = { 'Authorization': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDQlAiLCJ0ZWFtX2lkIjoiMDAxZTI4YzAtYmVhMi0zODUwLTgxMTQtYWVkMmQ5YTU2YTlmIiwiZXhwIjo5MjIzMzcyMDM2ODU0Nzc1LCJhcHBfaWQiOiIxNDZiZDRmOS1lOWNiLTQ2M2EtOGNiZC01ZDg2MGYzZWZiNjAifQ.d7r4SbvmbRoSw43ejFqiO9K0xpBK2jpp4XPfjvAla58', "continuationToken": "CONTINUATION TOKEN" })
@@ -40,14 +52,10 @@ for card in account['bankAccounts']:
 for card in account['creditCardAccounts']:
 	card_balances[card['id']] = card['balance']
 
-
 # Get transaction data
 trans = requests.get('https://api.td-davinci.com/api/customers/{}/transactions'.format(cur_id),
     headers = { 'Authorization': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDQlAiLCJ0ZWFtX2lkIjoiMDAxZTI4YzAtYmVhMi0zODUwLTgxMTQtYWVkMmQ5YTU2YTlmIiwiZXhwIjo5MjIzMzcyMDM2ODU0Nzc1LCJhcHBfaWQiOiIxNDZiZDRmOS1lOWNiLTQ2M2EtOGNiZC01ZDg2MGYzZWZiNjAifQ.d7r4SbvmbRoSw43ejFqiO9K0xpBK2jpp4XPfjvAla58'})
 trans_data = trans.json()
-
-#print(trans_data)
-# print(acc_data)
 
 transactions = trans_data['result']
 
@@ -66,35 +74,31 @@ for trans in transactions:
 	# 	curr_trans['balance'] = card_balances[card['id']] - trans[]
 	trans_clean.append(curr_trans)
 
+dates = []
+balances = []
+coordinates = []
 
-f = open('transactionbalance.json', 'w+')
-for i in trans_clean:
-	f.write(json.dumps(i, sort_keys=True, indent=4))
-	f.write(',')
-	f.write('\n')
-
-# print(temp_info)
-f.close()
-
-def getCoordinates():
-	coordinates = []
-
-	for tran in trans_clean:
-		balance = tran['balance']
-		date = tran['originationDateTime']
-		coordinates.append((date, balance))
-
-	return coordinates
+for tran in trans_clean:
+	balance = tran['balance']
+	date = tran['originationDateTime']
+	coordinates.append((date, balance))
+	balances.append(balance)
+	dates.append(date)
 
 
-# Generate coordinates
+print(dates)
 
+plt.plot(list(range(10)), balances[:10])
+plt.show()
 
-# numTransactions = 1
-# numCategoryTags = 1
-# a = np.zeros(shape = (numTransactions, numCategoryTags))
-# # a = np.array(trans_clean)
-# print(a)
+p = d = q = range(0, 2)
+pdq = list(itertools.product(p, d, q))
+seasonal_pdq = [(x[0], x[1], x[2], 12) for x in list(itertools.product(p, d, q))]
+print('Examples of parameter combinations for Seasonal ARIMA...')
+print('SARIMAX: {} x {}'.format(pdq[1], seasonal_pdq[1]))
+print('SARIMAX: {} x {}'.format(pdq[1], seasonal_pdq[2]))
+print('SARIMAX: {} x {}'.format(pdq[2], seasonal_pdq[3]))
+print('SARIMAX: {} x {}'.format(pdq[2], seasonal_pdq[4]))
 
 
 
