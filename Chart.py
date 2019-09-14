@@ -15,6 +15,17 @@ matplotlib.rcParams['xtick.labelsize'] = 12
 matplotlib.rcParams['ytick.labelsize'] = 12
 matplotlib.rcParams['text.color'] = 'k'
 
+def convertDates(odate: str):
+	year = int(odate[:4])
+	month = int(odate[5:7])
+	day = int(odate[8:10])
+
+	hour = int(odate[11:13])
+	minute = int(odate[14:16])
+	second = int(odate[17:19])
+	return datetime(year, month, day, hour, minute, second)
+
+
 response = requests.post('https://api.td-davinci.com/api/raw-customer-data',
     headers = { 'Authorization': 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJDQlAiLCJ0ZWFtX2lkIjoiMDAxZTI4YzAtYmVhMi0zODUwLTgxMTQtYWVkMmQ5YTU2YTlmIiwiZXhwIjo5MjIzMzcyMDM2ODU0Nzc1LCJhcHBfaWQiOiIxNDZiZDRmOS1lOWNiLTQ2M2EtOGNiZC01ZDg2MGYzZWZiNjAifQ.d7r4SbvmbRoSw43ejFqiO9K0xpBK2jpp4XPfjvAla58', "continuationToken": "CONTINUATION TOKEN" })
 response_data = response.json()
@@ -80,7 +91,7 @@ coordinates = []
 
 for tran in trans_clean:
 	balance = tran['balance']
-	date = tran['originationDateTime']
+	date = convertDates(tran['originationDateTime'])
 	coordinates.append((date, balance))
 	balances.append(balance)
 	dates.append(date)
@@ -99,7 +110,6 @@ print('SARIMAX: {} x {}'.format(pdq[1], seasonal_pdq[1]))
 print('SARIMAX: {} x {}'.format(pdq[1], seasonal_pdq[2]))
 print('SARIMAX: {} x {}'.format(pdq[2], seasonal_pdq[3]))
 print('SARIMAX: {} x {}'.format(pdq[2], seasonal_pdq[4]))
-
 
 
 
