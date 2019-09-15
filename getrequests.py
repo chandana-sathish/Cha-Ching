@@ -55,6 +55,21 @@ transactions = trans_data['result']
 trans_clean = []
 
 keys_list = ['description', 'type', 'currencyAmount', 'originationDateTime', 'customerId', 'id', 'accountId', 'categoryTags']
+tag_count = {'Food and Dining': 0, 
+			'Shopping': 0, 
+			'Bills and Utilities': 0, 
+			'Transfer': 0, 
+			'Auto and Transport' : 0, 
+			'Income': 0, 
+			'Home': 0, 
+			'Entertainment': 0, 
+			'Taxes': 0, 
+			'Kids': 0, 
+			'Mortgage and Rent': 0,
+			'Fees and Charges': 0, 
+			'Health and Fitness': 0, 
+			'Travel': 0}
+
 for trans in transactions:
 	curr_trans = {}
 	for key in keys_list:
@@ -66,6 +81,9 @@ for trans in transactions:
 	# else: # credit card
 	# 	curr_trans['balance'] = card_balances[card['id']] - trans[]
 	trans_clean.append(curr_trans)
+	
+	for tag in curr_trans['categoryTags']:
+		tag_count[tag] += 1
 
 
 f = open('transactionbalance.json', 'w+')
