@@ -62,6 +62,7 @@ for trans in transactions:
 
 	# if trans['type'] == 'DepositAccountTransaction':
 	curr_trans['balance'] = card_balances[card['id']] + trans['currencyAmount']
+	card_balances[card['id']] = curr_trans['balance']
 	# else: # credit card
 	# 	curr_trans['balance'] = card_balances[card['id']] - trans[]
 	trans_clean.append(curr_trans)
