@@ -10,6 +10,7 @@ import matplotlib
 import json
 import requests
 import numpy as np
+from datetime import datetime
 matplotlib.rcParams['axes.labelsize'] = 14
 matplotlib.rcParams['xtick.labelsize'] = 12
 matplotlib.rcParams['ytick.labelsize'] = 12
@@ -70,38 +71,46 @@ for trans in transactions:
 
 	# if trans['type'] == 'DepositAccountTransaction':
 	curr_trans['balance'] = card_balances[card['id']] + trans['currencyAmount']
+	card_balances[card['id']] = curr_trans['balance']
 	# else: # credit card
 	# 	curr_trans['balance'] = card_balances[card['id']] - trans[]
 	trans_clean.append(curr_trans)
 
+trans_clean.sort( key = lambda date: datetime.strptime(date['originationDateTime'][:18], '%Y-%m-%dT%H:%M:%S')) 
+
 dates = []
 balances = []
-coordinates = []
 
 for tran in trans_clean:
+
 	balance = tran['balance']
 	date = tran['originationDateTime']
-	coordinates.append((date, balance))
 	balances.append(balance)
-	dates.append(date)
+	dates.append(pd.to_datetime(date))
 
+for i in range(len(dates)-50,len(dates)-1):
+	print(dates[i])
+	print(balances[i])
 
-print(dates)
-
-plt.plot(list(range(10)), balances[:10])
+plt.plot(dates, balances)
+plt.ylabel('Account Balance')
+plt.xlabel('Time')
 plt.show()
 
 p = d = q = range(0, 2)
 pdq = list(itertools.product(p, d, q))
 seasonal_pdq = [(x[0], x[1], x[2], 12) for x in list(itertools.product(p, d, q))]
-print('Examples of parameter combinations for Seasonal ARIMA...')
-print('SARIMAX: {} x {}'.format(pdq[1], seasonal_pdq[1]))
-print('SARIMAX: {} x {}'.format(pdq[1], seasonal_pdq[2]))
-print('SARIMAX: {} x {}'.format(pdq[2], seasonal_pdq[3]))
-print('SARIMAX: {} x {}'.format(pdq[2], seasonal_pdq[4]))
 
+mod = sm.tsa.statespace.SARIMAX(balances,
+                                order=(0,0,0),
+                                seasonal_order=(0, 1, 0, 12),
+                                enforce_stationarity=False,
+                                enforce_invertibility=False)
+results = mod.fit()
+print(results.summary().tables[1])
 
-
+results.plot_diagnostics()
+plt.show()
 
 
 
